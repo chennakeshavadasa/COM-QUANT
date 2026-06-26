@@ -4,7 +4,7 @@ COM-QUANT is a fully automated, serverless quantitative analysis platform design
 
 The application is hosted entirely on GitHub Pages, utilizing GitHub Actions as a compute engine to perform data engineering and modeling processes without the need for dedicated backend infrastructure.
 
-**[View the Live Dashboard Here](https://chennakeshavadasa.github.io/COM-QUANT/)**
+**[https://chennakeshavadasa.github.io/COM-QUANT/](https://chennakeshavadasa.github.io/COM-QUANT/)**
 
 ---
 
