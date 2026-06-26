@@ -346,7 +346,14 @@ function setCategory(cat) {{
     currentCommodity = availableInCat.length > 0 ? availableInCat[0] : null;
     
     document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    // Find the tab that matches this category and make it active
+    const tabs = document.querySelectorAll('#category-tabs .tab');
+    for (let t of tabs) {{
+        if (t.getAttribute('onclick').includes(cat)) {{
+            t.classList.add('active');
+            break;
+        }}
+    }}
     renderAll();
 }}
 
@@ -359,7 +366,13 @@ function setCommodity(id) {{
 function setWindow(win) {{
     currentWindow = win;
     document.querySelectorAll('#window-tabs .tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    const tabs = document.querySelectorAll('#window-tabs .tab');
+    for (let t of tabs) {{
+        if (t.getAttribute('onclick').includes(win)) {{
+            t.classList.add('active');
+            break;
+        }}
+    }}
     renderAll();
 }}
 
