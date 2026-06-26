@@ -254,7 +254,7 @@ body {{
     <div class="section-title">Commodity Intelligence — <span id="comspec-title" style="color: var(--text);"></span></div>
     <div class="grid-2">
       <div class="card" id="comspec-panel"></div>
-      <div class="card" id="comspec-chart" style="min-height:200px; display:flex; justify-content:center; align-items:center;"></div>
+      <div class="card"><div id="comspec-chart" style="height:250px; width:100%;"></div></div>
     </div>
   </div>
 </div>

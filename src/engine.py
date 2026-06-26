@@ -40,6 +40,9 @@ COMMODITIES = {
     "COCOA":     {"ticker": "CC=F", "name": "Cocoa",         "unit": "USD/ton",     "category": "agriculture"},
     "OATS":      {"ticker": "OAT=F", "name": "Oats",          "unit": "USD/bushel",  "category": "agriculture"},
     "ROUGHRICE": {"ticker": "ZR=F",  "name": "Rough Rice",    "unit": "USD/cwt",     "category": "agriculture"},
+    "SOYBEANOIL":{"ticker": "ZL=F",  "name": "Soybean Oil",   "unit": "USD/lb",      "category": "agriculture"},
+    "SOYBEANMEAL":{"ticker": "ZM=F", "name": "Soybean Meal",  "unit": "USD/ton",     "category": "agriculture"},
+    "LUMBER":    {"ticker": "LBS=F", "name": "Lumber",        "unit": "USD/1000 bd ft", "category": "agriculture"},
     "LIVECATTLE":{"ticker": "LE=F", "name": "Live Cattle",   "unit": "USD/lb",      "category": "livestock"},
     "LEANHOGS":  {"ticker": "HE=F", "name": "Lean Hogs",     "unit": "USD/lb",      "category": "livestock"},
     "FEEDERCAT": {"ticker": "GF=F",  "name": "Feeder Cattle", "unit": "USD/lb",      "category": "livestock"},
@@ -49,7 +52,7 @@ CATEGORIES = {
     "precious_metals":   ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"],
     "industrial_metals": ["COPPER", "ALUMINUM", "ZINC", "LEAD"],
     "energy":            ["WTI", "BRENT", "NATGAS", "GASOLINE", "HEATOIL"],
-    "agriculture":       ["WHEAT", "CORN", "SOYBEAN", "COFFEE", "SUGAR", "COTTON", "COCOA", "OATS", "ROUGHRICE"],
+    "agriculture":       ["WHEAT", "CORN", "SOYBEAN", "SOYBEANOIL", "SOYBEANMEAL", "COFFEE", "SUGAR", "COTTON", "COCOA", "OATS", "ROUGHRICE", "LUMBER"],
     "livestock":         ["LIVECATTLE", "LEANHOGS", "FEEDERCAT"],
 }
 
