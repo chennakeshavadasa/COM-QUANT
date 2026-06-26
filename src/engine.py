@@ -8,7 +8,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
-import sklearn
+from sklearn.svm import SVR
 import json
 import sys
 import datetime
@@ -22,23 +22,35 @@ COMMODITIES = {
     "SILVER":    {"ticker": "SI=F", "name": "Silver",        "unit": "USD/troy oz", "category": "precious_metals"},
     "PLATINUM":  {"ticker": "PL=F", "name": "Platinum",      "unit": "USD/troy oz", "category": "precious_metals"},
     "PALLADIUM": {"ticker": "PA=F", "name": "Palladium",     "unit": "USD/troy oz", "category": "precious_metals"},
+    "COPPER":    {"ticker": "HG=F", "name": "Copper",        "unit": "USD/lb",      "category": "industrial_metals"},
+    "ALUMINUM":  {"ticker": "ALI=F", "name": "Aluminum",     "unit": "USD/ton",     "category": "industrial_metals"},
     "WTI":       {"ticker": "CL=F", "name": "WTI Crude Oil", "unit": "USD/barrel",  "category": "energy"},
     "BRENT":     {"ticker": "BZ=F", "name": "Brent Crude",   "unit": "USD/barrel",  "category": "energy"},
     "NATGAS":    {"ticker": "NG=F", "name": "Natural Gas",   "unit": "USD/MMBtu",   "category": "energy"},
+    "GASOLINE":  {"ticker": "RB=F", "name": "RBOB Gasoline", "unit": "USD/gallon",  "category": "energy"},
+    "HEATOIL":   {"ticker": "HO=F", "name": "Heating Oil",   "unit": "USD/gallon",  "category": "energy"},
     "WHEAT":     {"ticker": "ZW=F", "name": "Wheat",         "unit": "USD/bushel",  "category": "agriculture"},
     "CORN":      {"ticker": "ZC=F", "name": "Corn",          "unit": "USD/bushel",  "category": "agriculture"},
     "SOYBEAN":   {"ticker": "ZS=F", "name": "Soybean",       "unit": "USD/bushel",  "category": "agriculture"},
+    "COFFEE":    {"ticker": "KC=F", "name": "Coffee",        "unit": "USD/lb",      "category": "agriculture"},
+    "SUGAR":     {"ticker": "SB=F", "name": "Sugar",         "unit": "USD/lb",      "category": "agriculture"},
+    "COTTON":    {"ticker": "CT=F", "name": "Cotton",        "unit": "USD/lb",      "category": "agriculture"},
+    "COCOA":     {"ticker": "CC=F", "name": "Cocoa",         "unit": "USD/ton",     "category": "agriculture"},
+    "LIVECATTLE":{"ticker": "LE=F", "name": "Live Cattle",   "unit": "USD/lb",      "category": "livestock"},
+    "LEANHOGS":  {"ticker": "HE=F", "name": "Lean Hogs",     "unit": "USD/lb",      "category": "livestock"},
 }
 
 CATEGORIES = {
-    "precious_metals": ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"],
-    "energy":          ["WTI", "BRENT", "NATGAS"],
-    "agriculture":     ["WHEAT", "CORN", "SOYBEAN"],
+    "precious_metals":   ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"],
+    "industrial_metals": ["COPPER", "ALUMINUM"],
+    "energy":            ["WTI", "BRENT", "NATGAS", "GASOLINE", "HEATOIL"],
+    "agriculture":       ["WHEAT", "CORN", "SOYBEAN", "COFFEE", "SUGAR", "COTTON", "COCOA"],
+    "livestock":         ["LIVECATTLE", "LEANHOGS"],
 }
 
 DXY_PROXY_TICKER = "EURUSD=X"
 
-MODEL_WEIGHTS = {"arima": 0.30, "holt_winters": 0.30, "monte_carlo": 0.25, "ou_process": 0.15}
+MODEL_WEIGHTS = {"arima": 0.25, "holt_winters": 0.25, "monte_carlo": 0.20, "ou_process": 0.15, "svr": 0.15}
 
 WINDOWS = {
     "1W": {"forecast_days": 7,   "lookback_days": 180, "display_days": 7},
@@ -254,7 +266,30 @@ def fit_ou_process(prices, forecast_days, n_sims=1000, is_natgas=False):
     except:
         return {"forecast": [None]*n, "theta": None, "mu_eq": None, "sigma": None, "half_life_days": None}
 
-def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, weights):
+def fit_svr(prices, forecast_days):
+    n = forecast_days
+    try:
+        X = np.arange(len(prices)).reshape(-1, 1)
+        y = np.array(prices)
+        from sklearn.preprocessing import StandardScaler
+        scaler_X = StandardScaler()
+        scaler_y = StandardScaler()
+        X_scaled = scaler_X.fit_transform(X)
+        y_scaled = scaler_y.fit_transform(y.reshape(-1, 1)).flatten()
+        
+        model = SVR(kernel='rbf', C=10, gamma='scale', epsilon=0.1)
+        model.fit(X_scaled, y_scaled)
+        
+        X_pred = np.arange(len(prices), len(prices) + n).reshape(-1, 1)
+        X_pred_scaled = scaler_X.transform(X_pred)
+        forecast_scaled = model.predict(X_pred_scaled)
+        forecast = scaler_y.inverse_transform(forecast_scaled.reshape(-1, 1)).flatten()
+        
+        return {"forecast": forecast.tolist()}
+    except:
+        return {"forecast": [None]*n}
+
+def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, svr_fc, weights):
     n = len(arima_fc)
     ensemble = []
     for i in range(n):
@@ -272,6 +307,9 @@ def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, weights):
         if ou_fc[i] is not None:
             vals.append(ou_fc[i])
             wts.append(weights["ou_process"])
+        if svr_fc and svr_fc[i] is not None:
+            vals.append(svr_fc[i])
+            wts.append(weights.get("svr", 0.0))
         
         if sum(wts) > 0:
             ensemble.append(float(np.average(vals, weights=wts)))
@@ -807,7 +845,8 @@ def main():
             hw_r     = fit_holt_winters(close, n)
             mc_r     = fit_monte_carlo(close, n)
             ou_r     = fit_ou_process(close, n, is_natgas=(cid=="NATGAS"))
-            ensemble = compute_ensemble(arima_r["forecast"], hw_r["forecast"], mc_r["p50"], ou_r["forecast"], MODEL_WEIGHTS)
+            svr_r    = fit_svr(close, n)
+            ensemble = compute_ensemble(arima_r["forecast"], hw_r["forecast"], mc_r["p50"], ou_r["forecast"], svr_r["forecast"], MODEL_WEIGHTS)
             optimal  = find_optimal_entry(ensemble, forecast_dates, current_price)
 
             indicators  = compute_technical_indicators(close, high, low)
@@ -848,6 +887,7 @@ def main():
                     "monte_carlo_p75":  mc_r["p75"],
                     "monte_carlo_p95":  mc_r["p95"],
                     "ou_process":       ou_r["forecast"],
+                    "svr":              svr_r["forecast"],
                     "ensemble":         ensemble,
                     "arima_ci_lower":   arima_r["ci_lower"],
                     "arima_ci_upper":   arima_r["ci_upper"],

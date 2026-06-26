@@ -23,82 +23,103 @@ def generate_html(data, data_json_str):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COM-QUANT — Commodities Quant Analysis</title>
+<title>COM-QUANT — Advanced Commodities Analytics</title>
 <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {{
-  --bg:       #0f1117;
-  --surface:  #1a1d2e;
-  --surface2: #242740;
-  --border:   #2a2d4a;
-  --text:     #e8eaf6;
-  --text2:    #9ba3c9;
-  --accent:   #7c83fd;
-  --green:    #4caf7d;
-  --red:      #f06969;
-  --gold:     #ffd166;
-  --orange:   #ff9f43;
-  --teal:     #48dbfb;
-  --radius:   8px;
+  --bg:       #0B0E14;
+  --surface:  rgba(26, 29, 46, 0.7);
+  --surface2: rgba(36, 39, 64, 0.8);
+  --border:   rgba(255, 255, 255, 0.08);
+  --text:     #F3F4F6;
+  --text2:    #9CA3AF;
+  --accent:   #6366F1;
+  --accent-hover: #818CF8;
+  --green:    #10B981;
+  --red:      #EF4444;
+  --gold:     #F59E0B;
+  --orange:   #F97316;
+  --teal:     #06B6D4;
+  --radius:   12px;
   --max-width: 1400px;
+  --shadow:   0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --blur:     backdrop-filter: blur(12px);
 }}
 
 [data-theme="light"] {{
-  --bg:      #f0f2f8;
-  --surface: #ffffff;
-  --surface2:#eef0f8;
-  --border:  #d0d4e8;
-  --text:    #1a1d2e;
-  --text2:   #4a5070;
+  --bg:      #F3F4F6;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface2:rgba(243, 244, 246, 0.9);
+  --border:  rgba(0, 0, 0, 0.08);
+  --text:    #111827;
+  --text2:   #4B5563;
+  --shadow:  0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }}
 
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; }}
+* {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }}
+body {{ 
+  background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; 
+  transition: background 0.3s, color 0.3s; 
+  background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%);
+}}
 .container {{ max-width: var(--max-width); margin: 0 auto; padding: 0 20px; }}
-.section {{ padding: 24px 0; border-bottom: 1px solid var(--border); }}
-.section-title {{ font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 16px; }}
-.card {{ background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }}
-.badge {{ display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }}
-.badge-bull  {{ background: rgba(76,175,125,0.15); color: var(--green); }}
-.badge-bear  {{ background: rgba(240,105,105,0.15); color: var(--red); }}
-.badge-neut  {{ background: rgba(124,131,253,0.15); color: var(--accent); }}
-.badge-gold  {{ background: rgba(255,209,102,0.15); color: var(--gold); }}
-.up   {{ color: var(--green); }}
-.down {{ color: var(--red); }}
+.section {{ padding: 32px 0; border-bottom: 1px solid var(--border); }}
+.section-title {{ font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 20px; }}
 
-.tab-group {{ display: flex; gap: 4px; }}
-.tab {{ padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }}
-.tab:hover {{ border-color: var(--accent); color: var(--text); }}
-.tab.active {{ background: var(--accent); border-color: var(--accent); color: #fff; }}
+.card {{ 
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); 
+  padding: 20px; box-shadow: var(--shadow); var(--blur);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}}
+.card:hover {{ transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4); }}
 
-.grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
-.grid-3 {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }}
-.grid-4 {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }}
-@media (max-width: 900px)  {{ .grid-4 {{ grid-template-columns: repeat(2, 1fr); }} .grid-3 {{ grid-template-columns: 1fr 1fr; }} }}
-@media (max-width: 600px)  {{ .grid-2, .grid-3, .grid-4 {{ grid-template-columns: 1fr; }} }}
+.badge {{ display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }}
+.badge-bull  {{ background: rgba(16, 185, 129, 0.15); color: var(--green); }}
+.badge-bear  {{ background: rgba(239, 68, 68, 0.15); color: var(--red); }}
+.badge-neut  {{ background: rgba(99, 102, 241, 0.15); color: var(--accent); }}
 
-.com-card {{ cursor: pointer; transition: border-color 0.15s; }}
-.com-card:hover {{ border-color: var(--accent); }}
-.com-card.active {{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }}
-.com-card .com-name {{ font-weight: 600; font-size: 14px; }}
-.com-card .com-ticker {{ font-size: 11px; color: var(--text2); }}
-.com-card .com-price {{ font-size: 20px; font-weight: 700; margin: 6px 0 4px; }}
-.com-card .com-unit {{ font-size: 10px; color: var(--text2); }}
+.up   {{ color: var(--green); font-weight: 600; }}
+.down {{ color: var(--red); font-weight: 600; }}
 
-.stat-row {{ display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }}
+.tab-group {{ display: flex; gap: 6px; flex-wrap: wrap; }}
+.tab {{ 
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); 
+  color: var(--text2); cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; 
+}}
+.tab:hover {{ border-color: var(--accent); color: var(--text); background: rgba(99, 102, 241, 0.1); }}
+.tab.active {{ background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }}
+
+.grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
+.grid-3 {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }}
+.grid-4 {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }}
+@media (max-width: 1024px) {{ .grid-4 {{ grid-template-columns: repeat(2, 1fr); }} .grid-3 {{ grid-template-columns: 1fr 1fr; }} }}
+@media (max-width: 640px)  {{ .grid-2, .grid-3, .grid-4 {{ grid-template-columns: 1fr; }} }}
+
+.com-card {{ cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; background: var(--surface2); }}
+.com-card:hover {{ border-color: var(--accent-hover); }}
+.com-card.active {{ border-color: var(--accent); box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); background: var(--surface); }}
+.com-card .com-name {{ font-weight: 700; font-size: 15px; }}
+.com-card .com-ticker {{ font-size: 12px; color: var(--text2); font-weight: 500; }}
+.com-card .com-price {{ font-size: 24px; font-weight: 800; margin: 8px 0 4px; letter-spacing: -0.02em; }}
+.com-card .com-unit {{ font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }}
+
+.stat-row {{ display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }}
 .stat-row:last-child {{ border-bottom: none; }}
-.stat-label {{ color: var(--text2); }}
-.stat-value {{ font-weight: 600; }}
+.stat-label {{ color: var(--text2); font-weight: 500; }}
+.stat-value {{ font-weight: 700; }}
 
-.ind-row {{ display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; }}
-.ind-label {{ width: 90px; color: var(--text2); flex-shrink: 0; }}
-.ind-bar-wrap {{ flex: 1; height: 4px; background: var(--border); border-radius: 2px; }}
-.ind-bar {{ height: 4px; border-radius: 2px; }}
-.ind-val {{ width: 60px; text-align: right; font-weight: 600; }}
+.ind-row {{ display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 13px; }}
+.ind-label {{ width: 100px; color: var(--text2); flex-shrink: 0; font-weight: 500; }}
+.ind-bar-wrap {{ flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }}
+.ind-bar {{ height: 100%; border-radius: 3px; transition: width 0.5s ease; }}
+.ind-val {{ width: 60px; text-align: right; font-weight: 700; }}
 
-.gauge-wrap {{ text-align: center; padding: 12px 0; }}
-.gauge-score {{ font-size: 36px; font-weight: 700; color: var(--accent); }}
-.gauge-label {{ font-size: 13px; font-weight: 600; margin-top: 4px; }}
+.gauge-wrap {{ text-align: center; padding: 16px 0; }}
+.gauge-score {{ font-size: 48px; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }}
+.gauge-label {{ font-size: 16px; font-weight: 700; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.05em; }}
 
 .plotly-container {{ width: 100%; }}
 </style>
@@ -108,22 +129,25 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
   const COMQUANT_DATA = {data_json_str};
 </script>
 
-<header>
-  <div class="container" style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border);">
-    <div>
-      <span style="font-size:22px; font-weight:800; color:var(--accent);">COM-QUANT</span>
-      <span style="font-size:13px; color:var(--text2); margin-left:12px;">Commodities Quant Analysis</span>
+<header style="background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; var(--blur);">
+  <div class="container" style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px;">
+    <div style="display:flex; align-items:center; gap: 16px;">
+      <div style="background: linear-gradient(135deg, var(--accent), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size:26px; font-weight:900; letter-spacing: -0.05em;">COM-QUANT</div>
+      <div style="height: 24px; width: 1px; background: var(--border);"></div>
+      <div style="font-size:14px; color:var(--text2); font-weight: 500; display: none; @media (min-width: 640px) {{ display: block; }}">Advanced Commodities Analytics</div>
     </div>
-    <div style="display:flex; align-items:center; gap:12px;">
-      <span id="updated-ts" style="font-size:11px; color:var(--text2);"></span>
-      <button onclick="toggleTheme()" style="padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:12px;" id="theme-btn">☀ Light</button>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span id="updated-ts" style="font-size:12px; color:var(--text2); font-weight: 500;"></span>
+      <button onclick="toggleTheme()" style="padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-size:13px; font-weight: 600; transition: all 0.2s;" id="theme-btn">☀ Light</button>
     </div>
   </div>
-  <div class="container" style="padding:10px 20px 0; display:flex; justify-content:space-between; align-items:center;">
+  <div class="container" style="padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 12px;">
     <div class="tab-group" id="category-tabs">
       <button class="tab active" onclick="setCategory('precious_metals')">✦ Precious Metals</button>
+      <button class="tab"        onclick="setCategory('industrial_metals')">🏗 Industrial</button>
       <button class="tab"        onclick="setCategory('energy')">⚡ Energy</button>
       <button class="tab"        onclick="setCategory('agriculture')">⬡ Agriculture</button>
+      <button class="tab"        onclick="setCategory('livestock')">🐄 Livestock</button>
     </div>
     <div class="tab-group" id="window-tabs">
       <button class="tab active" onclick="setWindow('1W')">1W</button>
@@ -139,9 +163,9 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
 
 <div class="section">
   <div class="container">
-    <div class="section-title">Deep Analysis — <span id="deep-title"></span></div>
-    <div class="card" style="margin-bottom:16px;">
-      <div id="forecast-chart" style="height:380px;"></div>
+    <div class="section-title">Deep Analysis — <span id="deep-title" style="color: var(--text);"></span></div>
+    <div class="card" style="margin-bottom:20px;">
+      <div id="forecast-chart" style="height:450px;"></div>
     </div>
     <div class="grid-2">
       <div class="card" id="optimal-panel"></div>
@@ -155,12 +179,12 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
     <div class="section-title">Cross-Commodity Spreads</div>
     <div class="grid-2">
       <div class="card">
-        <div id="spread-gold-silver" style="height:240px;"></div>
-        <div id="gold-silver-info" style="margin-top:8px; font-size:12px; color:var(--text2);"></div>
+        <div id="spread-gold-silver" style="height:280px;"></div>
+        <div id="gold-silver-info" style="margin-top:12px; font-size:13px; font-weight: 500; color:var(--text2); text-align: center;"></div>
       </div>
       <div class="card">
-        <div id="spread-brent-wti" style="height:240px;"></div>
-        <div id="brent-wti-info" style="margin-top:8px; font-size:12px; color:var(--text2);"></div>
+        <div id="spread-brent-wti" style="height:280px;"></div>
+        <div id="brent-wti-info" style="margin-top:12px; font-size:13px; font-weight: 500; color:var(--text2); text-align: center;"></div>
       </div>
     </div>
   </div>
@@ -169,9 +193,9 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
 <div class="section">
   <div class="container">
     <div class="section-title">Commodity Correlations (3-Month)</div>
-    <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px;">
-      <div class="card"><div id="corr-heatmap" style="height:380px;"></div></div>
-      <div class="card"><div id="dxy-chart"    style="height:380px;"></div></div>
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
+      <div class="card"><div id="corr-heatmap" style="height:420px;"></div></div>
+      <div class="card"><div id="dxy-chart"    style="height:420px;"></div></div>
     </div>
   </div>
 </div>
@@ -188,13 +212,13 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
 
 <div class="section">
   <div class="container">
-    <div class="section-title">Seasonality Analysis — <span id="seas-title"></span></div>
+    <div class="section-title">Seasonality Analysis — <span id="seas-title" style="color: var(--text);"></span></div>
     <div class="grid-3">
-      <div class="card"><div id="seas-dow"  style="height:220px;"></div></div>
-      <div class="card"><div id="seas-mon"  style="height:220px;"></div></div>
-      <div class="card"><div id="seas-qtr"  style="height:220px;"></div></div>
+      <div class="card"><div id="seas-dow"  style="height:250px;"></div></div>
+      <div class="card"><div id="seas-mon"  style="height:250px;"></div></div>
+      <div class="card"><div id="seas-qtr"  style="height:250px;"></div></div>
     </div>
-    <div style="margin-top:10px; font-size:12px; color:var(--text2);" id="seas-summary"></div>
+    <div style="margin-top:12px; font-size:13px; font-weight:500; color:var(--text2); text-align: center;" id="seas-summary"></div>
   </div>
 </div>
 
@@ -203,12 +227,12 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
     <div class="section-title">Commodity Rankings</div>
     <div class="grid-2">
       <div class="card">
-        <div class="section-title">Inflation Hedge Score (vs Gold benchmark)</div>
-        <div id="inflation-chart" style="height:280px;"></div>
+        <div class="section-title" style="font-size: 13px;">Inflation Hedge Score (vs Gold benchmark)</div>
+        <div id="inflation-chart" style="height:350px;"></div>
       </div>
       <div class="card">
-        <div class="section-title">DXY Sensitivity (correlation with USD)</div>
-        <div id="dxy-rank-chart" style="height:280px;"></div>
+        <div class="section-title" style="font-size: 13px;">DXY Sensitivity (correlation with USD)</div>
+        <div id="dxy-rank-chart" style="height:350px;"></div>
       </div>
     </div>
   </div>
@@ -216,20 +240,20 @@ body {{ background: var(--bg); color: var(--text); font-family: system-ui, -appl
 
 <div class="section" id="comspec-section">
   <div class="container">
-    <div class="section-title">Commodity Intelligence — <span id="comspec-title"></span></div>
+    <div class="section-title">Commodity Intelligence — <span id="comspec-title" style="color: var(--text);"></span></div>
     <div class="grid-2">
       <div class="card" id="comspec-panel"></div>
-      <div class="card" id="comspec-chart" style="min-height:160px; display:flex; justify-content:center; align-items:center;"></div>
+      <div class="card" id="comspec-chart" style="min-height:200px; display:flex; justify-content:center; align-items:center;"></div>
     </div>
   </div>
 </div>
 
-<footer style="padding:20px; text-align:center; border-top:1px solid var(--border); margin-top:32px;">
-  <p style="color:var(--text2); font-size:12px;">
-    COM-QUANT &nbsp;&bull;&nbsp; Data from Yahoo Finance &nbsp;&bull;&nbsp; For educational purposes only &nbsp;&bull;&nbsp; Not financial advice
+<footer style="padding:32px 20px; text-align:center; background: var(--surface); border-top:1px solid var(--border); margin-top:40px;">
+  <p style="color:var(--text); font-size:14px; font-weight: 600;">
+    COM-QUANT &nbsp;&bull;&nbsp; Advanced Algorithmic Analytics
   </p>
-  <p style="color:var(--text2); font-size:11px; margin-top:4px;">
-    Updated daily via GitHub Actions &nbsp;&bull;&nbsp; Built with ARIMA, Holt-Winters, Monte Carlo & Ornstein-Uhlenbeck models
+  <p style="color:var(--text2); font-size:12px; margin-top:8px; max-width: 600px; margin-left: auto; margin-right: auto;">
+    Data sourced from Yahoo Finance. This dashboard is fully automated via GitHub Actions and uses ARIMA, Holt-Winters, Monte Carlo, Ornstein-Uhlenbeck, and SVR models. For educational and research purposes only. Not financial advice.
   </p>
 </footer>
 
@@ -258,17 +282,36 @@ function filterNulls(dates, values) {{
     return [fd, fv];
 }}
 
+function getThemeColors() {{
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {{
+        text: isDark ? '#F3F4F6' : '#111827',
+        text2: isDark ? '#9CA3AF' : '#4B5563',
+        border: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+        surface: isDark ? '#1A1D2E' : '#FFFFFF',
+        bg: isDark ? '#0B0E14' : '#F3F4F6'
+    }};
+}}
+
 function plotLayout(overrides = {{}}) {{
+    const colors = getThemeColors();
+
     return Object.assign({{
-        paper_bgcolor: "transparent",
-        plot_bgcolor:  "transparent",
-        font: {{ color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || "#e8eaf6",
-                family: "system-ui, -apple-system, sans-serif", size: 12 }},
-        xaxis: {{ gridcolor: "#2a2d4a", linecolor: "#3a3d5a", zerolinecolor: "#3a3d5a" }},
-        yaxis: {{ gridcolor: "#2a2d4a", linecolor: "#3a3d5a", zerolinecolor: "#3a3d5a" }},
-        margin: {{ t: 40, r: 20, b: 40, l: 60 }},
-        legend: {{ bgcolor: "transparent", bordercolor: "transparent" }},
+        paper_bgcolor: 'transparent',
+        plot_bgcolor:  'transparent',
+        font: {{ color: colors.text, family: "'Inter', sans-serif", size: 14 }},
+        xaxis: {{ 
+            gridcolor: colors.border, linecolor: colors.border, zerolinecolor: colors.border,
+            showticklabels: true, tickfont: {{ color: colors.text, size: 12 }}
+        }},
+        yaxis: {{ 
+            gridcolor: colors.border, linecolor: colors.border, zerolinecolor: colors.border,
+            showticklabels: true, tickfont: {{ color: colors.text, size: 12 }}
+        }},
+        margin: {{ t: 50, r: 20, b: 50, l: 60 }},
+        legend: {{ bgcolor: "rgba(0,0,0,0.2)", bordercolor: colors.border, borderwidth: 1, font: {{size: 12}} }},
         hovermode: "x unified",
+        hoverlabel: {{ bgcolor: colors.surface, font: {{ color: colors.text, family: "'Inter', sans-serif", size: 13 }}, bordercolor: colors.border }}
     }}, overrides);
 }}
 const PLOT_CONFIG = {{ displayModeBar: false, responsive: true }};
@@ -285,7 +328,9 @@ function drawPlot(divId, traces, layout) {{
 // ── State setters ─────────────────────────────────────────────
 function setCategory(cat) {{
     currentCategory = cat;
-    currentCommodity = COMQUANT_DATA.categories[cat].find(c => COMQUANT_DATA.data[c]) || COMQUANT_DATA.categories[cat][0];
+    const availableInCat = COMQUANT_DATA.categories[cat].filter(c => COMQUANT_DATA.data[c]);
+    currentCommodity = availableInCat.length > 0 ? availableInCat[0] : null;
+    
     document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
     renderAll();
@@ -310,11 +355,17 @@ function toggleTheme() {{
     html.setAttribute('data-theme', isLight ? 'dark' : 'light');
     document.getElementById('theme-btn').textContent = isLight ? '☀ Light' : '☽ Dark';
     renderAll();
+    
+    // Force re-render of all charts to update colors
+    chartsInitialized = false; 
+    initializedDivs.clear();
+    renderAll();
 }}
 
 // ── Render functions ──────────────────────────────────────────
 
 function renderOverviewCards() {{
+    if (!currentCommodity) return;
     const cat = COMQUANT_DATA.categories[currentCategory];
     const container = document.getElementById("overview-cards");
     container.innerHTML = "";
@@ -338,7 +389,7 @@ function renderOverviewCards() {{
             </div>
             <div class="com-price">${{formatPrice(d.meta.current_price)}}</div>
             <div class="com-unit">${{d.meta.unit}}</div>
-            <div style="display:flex;gap:12px;margin-top:6px;font-size:12px;">
+            <div style="display:flex;gap:12px;margin-top:12px;font-size:13px;font-weight:600;">
               <span class="${{chgClass}}">${{chgArrow}} ${{Math.abs(change1d).toFixed(2)}}% 1D</span>
               <span class="${{d.meta.price_change_5d_pct >= 0 ? 'up' : 'down'}}">
                 ${{d.meta.price_change_5d_pct >= 0 ? "▲" : "▼"}} ${{Math.abs(d.meta.price_change_5d_pct).toFixed(2)}}% 5D
@@ -362,13 +413,15 @@ function renderForecastChart() {{
     const [hFcDates, hw] = filterNulls(fcDates, d.forecast.holt_winters);
     const [mcFcDates, mc_p50] = filterNulls(fcDates, d.forecast.monte_carlo_p50);
     const [oFcDates, ou] = filterNulls(fcDates, d.forecast.ou_process);
+    const [sFcDates, svr] = filterNulls(fcDates, d.forecast.svr);
     const [eFcDates, ensemble] = filterNulls(fcDates, d.forecast.ensemble);
     
     const traces = [];
+    const colors = getThemeColors();
     
     traces.push({{
         x: histDates, y: histClose, mode: 'lines', name: 'Historical', 
-        line: {{color: '#9ba3c9', width: 1.5}}
+        line: {{color: colors.text2, width: 2}}
     }});
     
     const [aCiDates, arima_ci_lower] = filterNulls(fcDates, d.forecast.arima_ci_lower);
@@ -378,22 +431,22 @@ function renderForecastChart() {{
             x: aCiDates, y: arima_ci_lower, fill: null, line: {{width: 0}}, showlegend: false, hoverinfo: 'skip'
         }});
         traces.push({{
-            x: aCiDates, y: arima_ci_upper, fill: 'tonexty', fillcolor: 'rgba(124,131,253,0.1)', 
+            x: aCiDates, y: arima_ci_upper, fill: 'tonexty', fillcolor: 'rgba(99, 102, 241, 0.1)', 
             line: {{width: 0}}, name: 'ARIMA 95% CI', hoverinfo: 'skip'
         }});
     }}
     
     if (aFcDates.length > 0) {{
         traces.push({{
-            x: aFcDates, y: arima, mode: 'lines', name: 'ARIMA (30%)', 
-            line: {{color: '#7c83fd', dash: 'dash', width: 1.5}}
+            x: aFcDates, y: arima, mode: 'lines', name: 'ARIMA (25%)', 
+            line: {{color: '#6366F1', dash: 'dash', width: 1.5}}
         }});
     }}
     
     if (hFcDates.length > 0) {{
         traces.push({{
-            x: hFcDates, y: hw, mode: 'lines', name: 'Holt-Winters (30%)', 
-            line: {{color: '#ff9f43', dash: 'dash', width: 1.5}}
+            x: hFcDates, y: hw, mode: 'lines', name: 'Holt-Winters (25%)', 
+            line: {{color: '#F97316', dash: 'dash', width: 1.5}}
         }});
     }}
     
@@ -404,45 +457,53 @@ function renderForecastChart() {{
             x: mcPDates, y: mc_p5, fill: null, line: {{width: 0}}, showlegend: false, hoverinfo: 'skip'
         }});
         traces.push({{
-            x: mcPDates, y: mc_p95, fill: 'tonexty', fillcolor: 'rgba(72,219,251,0.08)', 
+            x: mcPDates, y: mc_p95, fill: 'tonexty', fillcolor: 'rgba(6, 182, 212, 0.08)', 
             line: {{width: 0}}, name: 'MC Range', hoverinfo: 'skip'
         }});
     }}
     
     if (mcFcDates.length > 0) {{
         traces.push({{
-            x: mcFcDates, y: mc_p50, mode: 'lines', name: 'MC Median (25%)', 
-            line: {{color: '#48dbfb', dash: 'dot', width: 1}}
+            x: mcFcDates, y: mc_p50, mode: 'lines', name: 'MC Median (20%)', 
+            line: {{color: '#06B6D4', dash: 'dot', width: 1.5}}
         }});
     }}
     
     if (oFcDates.length > 0) {{
         traces.push({{
             x: oFcDates, y: ou, mode: 'lines', name: 'Ornstein-Uhlenbeck (15%)', 
-            line: {{color: '#4caf7d', dash: 'dash', width: 1.5}}
+            line: {{color: '#10B981', dash: 'dash', width: 1.5}}
+        }});
+    }}
+    
+    if (sFcDates.length > 0) {{
+        traces.push({{
+            x: sFcDates, y: svr, mode: 'lines', name: 'SVR (15%)', 
+            line: {{color: '#EC4899', dash: 'dash', width: 1.5}}
         }});
     }}
     
     if (eFcDates.length > 0) {{
         traces.push({{
             x: eFcDates, y: ensemble, mode: 'lines', name: 'Ensemble', 
-            line: {{color: '#ffd166', width: 2.5}}
+            line: {{color: '#F59E0B', width: 3}}
         }});
     }}
     
     if (d.forecast.optimal_date && d.forecast.optimal_price) {{
         traces.push({{
             x: [d.forecast.optimal_date], y: [d.forecast.optimal_price], mode: 'markers', 
-            marker: {{color: '#4caf7d', size: 10, symbol: 'circle'}}, name: 'Best Entry', hoverinfo: 'x+y'
+            marker: {{color: '#10B981', size: 12, symbol: 'diamond', line: {{color: '#fff', width: 1}}}}, 
+            name: 'Best Entry', hoverinfo: 'x+y'
         }});
     }}
     
     const layout = plotLayout({{
-        title: `${{d.meta.name}} — ${{currentWindow}} Forecast (${{d.meta.unit}})`,
+        title: {{ text: `${{d.meta.name}} — ${{currentWindow}} Forecast (${{d.meta.unit}})`, font: {{size: 16, weight: 700}} }},
         shapes: [
             {{
                 type: 'line', x0: histDates[histDates.length-1], x1: histDates[histDates.length-1],
-                y0: 0, y1: 1, yref: 'paper', line: {{color: '#2a2d4a', dash: 'dot', width: 1}}
+                y0: 0, y1: 1, yref: 'paper', line: {{color: colors.border, dash: 'dot', width: 2}}
             }}
         ]
     }});
@@ -465,14 +526,14 @@ function renderOptimalEntry() {{
     let gainStr = pgn != null ? `${{moveArrow}} ${{Math.abs(pgn).toFixed(2)}}%` : "N/A";
     
     panel.innerHTML = `
-        <div style="padding:8px 0;">
+        <div style="padding:12px 0;">
           <div class="section-title">Best Entry Window</div>
-          <div style="font-size:28px; font-weight:800; color:var(--green); margin:8px 0;">${{odate}}</div>
+          <div style="font-size:36px; font-weight:800; color:var(--green); margin:12px 0; letter-spacing:-0.03em;">${{odate}}</div>
           <div class="stat-row"><span class="stat-label">Price target</span><span class="stat-value">${{formatPrice(oprice)}} ${{d.meta.unit}}</span></div>
           <div class="stat-row"><span class="stat-label">Days from today</span><span class="stat-value">${{ohdays}}</span></div>
           <div class="stat-row"><span class="stat-label">Potential move</span><span class="stat-value ${{moveClass}}">${{gainStr}}</span></div>
           <div class="stat-row"><span class="stat-label">Current price</span><span class="stat-value">${{formatPrice(d.meta.current_price)}}</span></div>
-          <div style="font-size:11px; color:var(--text2); margin-top:12px;">Ensemble model. Not financial advice.</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:20px; font-style:italic;">Calculated via weighted model ensemble. Not financial advice.</div>
         </div>`;
 }}
 
@@ -485,9 +546,9 @@ function renderIndicators() {{
     const sig = ind.composite_signal;
     let sColor = "var(--text2)";
     if (sig.includes("Bullish")) sColor = "var(--green)";
-    else if (sig.includes("Bull")) sColor = "#74b9ff";
+    else if (sig.includes("Bull")) sColor = "#34D399";
     else if (sig.includes("Bearish")) sColor = "var(--red)";
-    else if (sig.includes("Bear")) sColor = "#ff7675";
+    else if (sig.includes("Bear")) sColor = "#F87171";
     
     const getBarColor = (val, low, high, isReversed=false) => {{
         if (isReversed) {{
@@ -506,8 +567,9 @@ function renderIndicators() {{
         <div class="gauge-wrap">
           <div class="gauge-score">${{ind.composite_score.toFixed(0)}}</div>
           <div class="gauge-label" style="color:${{sColor}}">${{sig}}</div>
-          <div style="font-size:11px; color:var(--text2);">Composite 0–100</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:4px; font-weight:500;">Composite Score 0–100</div>
         </div>
+        <div style="margin-top: 16px;">
     `;
     
     const addRow = (label, val, pct, bg) => {{
@@ -531,77 +593,84 @@ function renderIndicators() {{
     const zPct = (ind.zscore20 + 3) / 6 * 100;
     addRow("Z-Score (20)", ind.zscore20.toFixed(2), zPct, getBarColor(ind.zscore20, -2, 2, true));
     
+    html += `</div>`;
     pnl.innerHTML = html;
 }}
 
 function renderSpreads() {{
     const sp = COMQUANT_DATA.spreads;
+    const colors = getThemeColors();
     
     const gs = sp.gold_silver_ratio;
     if (gs && gs.dates) {{
         const [gDates, gVals] = filterNulls(gs.dates, gs.values);
         const gTraces = [
-            {{x: gDates, y: gVals, mode: 'lines', name: 'Ratio', line: {{color: '#ffd166', width: 1.5}}}}
+            {{x: gDates, y: gVals, mode: 'lines', name: 'Ratio', line: {{color: '#F59E0B', width: 2}}}}
         ];
         const gLayout = plotLayout({{
-            title: "Gold/Silver Ratio",
-            shapes: [{{type: 'line', x0: 0, x1: 1, xref: 'paper', y0: gs.mean_1y, y1: gs.mean_1y, line: {{color: '#9ba3c9', dash: 'dash', width: 1}}}}]
+            title: "Gold / Silver Ratio",
+            shapes: [{{type: 'line', x0: 0, x1: 1, xref: 'paper', y0: gs.mean_1y, y1: gs.mean_1y, line: {{color: colors.text2, dash: 'dash', width: 2}}}}]
         }});
         drawPlot("spread-gold-silver", gTraces, gLayout);
-        document.getElementById("gold-silver-info").textContent = `Current: ${{gs.current.toFixed(2)}} | 1Y Mean: ${{gs.mean_1y.toFixed(2)}} | Z-Score: ${{gs.z_score.toFixed(2)}} | ${{gs.interpretation}}`;
+        document.getElementById("gold-silver-info").innerHTML = `Current: <strong>${{gs.current.toFixed(2)}}</strong> &nbsp;|&nbsp; 1Y Mean: <strong>${{gs.mean_1y.toFixed(2)}}</strong> &nbsp;|&nbsp; Z-Score: <strong>${{gs.z_score.toFixed(2)}}</strong><br><span style="color:var(--accent);">${{gs.interpretation}}</span>`;
     }} else {{
-        document.getElementById("spread-gold-silver").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;'>Data unavailable</div>";
+        document.getElementById("spread-gold-silver").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;font-weight:600;'>Data unavailable</div>";
     }}
     
     const bw = sp.brent_wti_spread;
     if (bw && bw.dates) {{
         const [bDates, bVals] = filterNulls(bw.dates, bw.values);
         const bTraces = [
-            {{x: bDates, y: bVals, mode: 'lines', name: 'Spread', line: {{color: '#ff9f43', width: 1.5}}}}
+            {{x: bDates, y: bVals, mode: 'lines', name: 'Spread', line: {{color: '#F97316', width: 2}}}}
         ];
         const bLayout = plotLayout({{
-            title: "Brent-WTI Spread",
-            shapes: [{{type: 'line', x0: 0, x1: 1, xref: 'paper', y0: bw.mean_1y, y1: bw.mean_1y, line: {{color: '#9ba3c9', dash: 'dash', width: 1}}}}]
+            title: "Brent - WTI Spread",
+            shapes: [{{type: 'line', x0: 0, x1: 1, xref: 'paper', y0: bw.mean_1y, y1: bw.mean_1y, line: {{color: colors.text2, dash: 'dash', width: 2}}}}]
         }});
         drawPlot("spread-brent-wti", bTraces, bLayout);
-        document.getElementById("brent-wti-info").textContent = `Current: $${{bw.current.toFixed(2)}}/bbl | 1Y Mean: $${{bw.mean_1y.toFixed(2)}} | Z-Score: ${{bw.z_score.toFixed(2)}}`;
+        document.getElementById("brent-wti-info").innerHTML = `Current: <strong>$${{bw.current.toFixed(2)}}/bbl</strong> &nbsp;|&nbsp; 1Y Mean: <strong>$${{bw.mean_1y.toFixed(2)}}</strong> &nbsp;|&nbsp; Z-Score: <strong>${{bw.z_score.toFixed(2)}}</strong>`;
     }} else {{
-        document.getElementById("spread-brent-wti").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;'>Data unavailable</div>";
+        document.getElementById("spread-brent-wti").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;font-weight:600;'>Data unavailable</div>";
     }}
 }}
 
 function renderCorrelationMatrix() {{
-    const matrix = COMQUANT_DATA.correlations.matrix;
+    const matrix = COMQUANT_DATA.correlations;
     if (!matrix) return;
     
-    const ids = Object.keys(matrix);
-    const labels = ids.map(id => COMQUANT_DATA.data[id]?.["1W"]?.meta?.name || id);
+    // Filter to only IDs that exist in data and ignore dxy_proxy which is a special key
+    const ids = Object.keys(matrix).filter(id => id !== "dxy_proxy" && COMQUANT_DATA.data[id] && COMQUANT_DATA.data[id]["1W"]);
+    if (ids.length === 0) return;
+
+    const labels = ids.map(id => COMQUANT_DATA.data[id]["1W"].meta.name);
     const z = ids.map(ri => ids.map(ci => matrix[ri]?.[ci] ?? 0));
+    
+    const colors = getThemeColors();
     
     const trace = {{
         type: 'heatmap', z: z, x: labels, y: labels,
-        colorscale: [[0,'#f06969'],[0.5,'#2a2d4a'],[1,'#4caf7d']],
+        colorscale: [[0,'#EF4444'],[0.5,colors.surface],[1,'#10B981']],
         zmin: -1, zmax: 1,
         text: z.map(row => row.map(v => v.toFixed(2))),
-        texttemplate: '%{{text}}', textfont: {{size: 10}},
+        texttemplate: '%{{text}}', textfont: {{size: 11, family: 'Inter', color: colors.text}},
         hoverongaps: false
     }};
     
-    const layout = plotLayout({{ title: "Correlation Matrix", margin: {{t:40, r:20, b:60, l:80}} }});
+    const layout = plotLayout({{ title: "Correlation Matrix (3 Months)", margin: {{t:60, r:20, b:100, l:120}} }});
     drawPlot("corr-heatmap", [trace], layout);
     
     const dxy = COMQUANT_DATA.correlations.dxy_proxy;
     if (dxy) {{
-        const dxyIds = Object.keys(dxy).filter(id => COMQUANT_DATA.data[id]?.["1W"]);
+        const dxyIds = Object.keys(dxy).filter(id => COMQUANT_DATA.data[id] && COMQUANT_DATA.data[id]["1W"]);
         const names = dxyIds.map(id => COMQUANT_DATA.data[id]["1W"].meta.name);
         const vals = dxyIds.map(id => dxy[id]);
-        const colors = vals.map(v => v < 0 ? "#4caf7d" : "#f06969");
+        const barColors = vals.map(v => v < 0 ? "#10B981" : "#EF4444");
         
-        const dxyTrace = {{ type: 'bar', orientation: 'h', x: vals, y: names, marker: {{color: colors}}, name: 'DXY Corr' }};
+        const dxyTrace = {{ type: 'bar', orientation: 'h', x: vals, y: names, marker: {{color: barColors}}, name: 'DXY Corr' }};
         const dxyLayout = plotLayout({{ 
-            title: "DXY Sensitivity", 
-            xaxis: {{ title: "Correlation with USD Index", range: [-1, 1] }},
-            margin: {{t:40, r:20, b:40, l:80}}
+            title: "Sensitivity to USD (DXY)", 
+            xaxis: {{ title: "Correlation", range: [-1, 1], showticklabels: true }},
+            margin: {{t:60, r:40, b:60, l:120}}
         }});
         
         drawPlot("dxy-chart", [dxyTrace], dxyLayout);
@@ -621,25 +690,24 @@ function renderRiskStats() {{
     const srColor = risk.sharpe_ratio > 1 ? "var(--green)" : risk.sharpe_ratio > 0 ? "var(--orange)" : "var(--red)";
     
     rPanel.innerHTML = `
-        <div class="stat-row"><span class="stat-label">VaR 95%</span><span class="stat-value" style="color:var(--red)">${{risk.var_95_pct.toFixed(3)}}%</span></div>
-        <div class="stat-row"><span class="stat-label">VaR 99%</span><span class="stat-value" style="color:var(--red)">${{risk.var_99_pct.toFixed(3)}}%</span></div>
-        <div class="stat-row"><span class="stat-label">CVaR 95%</span><span class="stat-value" style="color:var(--red)">${{risk.cvar_95_pct.toFixed(3)}}%</span></div>
+        <div class="stat-row"><span class="stat-label">VaR (95%)</span><span class="stat-value" style="color:var(--red)">${{risk.var_95_pct.toFixed(2)}}%</span></div>
+        <div class="stat-row"><span class="stat-label">VaR (99%)</span><span class="stat-value" style="color:var(--red)">${{risk.var_99_pct.toFixed(2)}}%</span></div>
+        <div class="stat-row"><span class="stat-label">CVaR (95%)</span><span class="stat-value" style="color:var(--red)">${{risk.cvar_95_pct.toFixed(2)}}%</span></div>
         <div class="stat-row"><span class="stat-label">Max Drawdown</span><span class="stat-value" style="color:var(--red)">${{risk.max_drawdown_pct.toFixed(2)}}%</span></div>
         <div class="stat-row"><span class="stat-label">Sharpe Ratio</span><span class="stat-value" style="color:${{srColor}}">${{risk.sharpe_ratio.toFixed(2)}}</span></div>
         <div class="stat-row"><span class="stat-label">Sortino Ratio</span><span class="stat-value">${{risk.sortino_ratio?.toFixed(2) ?? 'N/A'}}</span></div>
-        <div class="stat-row"><span class="stat-label">DCA 5-day avg</span><span class="stat-value">${{formatPrice(risk.dca_5d_avg)}}</span></div>
-        <div class="stat-row"><span class="stat-label">DCA 10-day avg</span><span class="stat-value">${{formatPrice(risk.dca_10d_avg)}}</span></div>
+        <div class="stat-row"><span class="stat-label">DCA 5-Day Avg</span><span class="stat-value">${{formatPrice(risk.dca_5d_avg)}}</span></div>
+        <div class="stat-row"><span class="stat-label">DCA 10-Day Avg</span><span class="stat-value">${{formatPrice(risk.dca_10d_avg)}}</span></div>
     `;
     
     sPanel.innerHTML = `
-        <div class="stat-row"><span class="stat-label">Hurst Exponent</span><span class="stat-value">${{stat.hurst.toFixed(3)}} — ${{stat.hurst_regime}}</span></div>
+        <div class="stat-row"><span class="stat-label">Hurst Exponent</span><span class="stat-value">${{stat.hurst.toFixed(3)}} — <span style="color:var(--accent)">${{stat.hurst_regime}}</span></span></div>
         <div class="stat-row"><span class="stat-label">Skewness</span><span class="stat-value">${{stat.skewness.toFixed(3)}}</span></div>
         <div class="stat-row"><span class="stat-label">Excess Kurtosis</span><span class="stat-value">${{stat.kurtosis_excess.toFixed(3)}}</span></div>
         <div class="stat-row"><span class="stat-label">ADF p-value</span><span class="stat-value">${{stat.adf_pvalue?.toFixed(4) ?? 'N/A'}} (${{stat.adf_stationary ? '✓ Stationary' : '✗ Non-stationary'}})</span></div>
         <div class="stat-row"><span class="stat-label">Jarque-Bera p</span><span class="stat-value">${{stat.jarque_bera_pvalue?.toFixed(4) ?? 'N/A'}}</span></div>
         <div class="stat-row"><span class="stat-label">Ann. Vol (10d)</span><span class="stat-value">${{stat.annualized_vol_10d?.toFixed(2) ?? 'N/A'}}%</span></div>
         <div class="stat-row"><span class="stat-label">Ann. Vol (20d)</span><span class="stat-value">${{stat.annualized_vol_20d?.toFixed(2) ?? 'N/A'}}%</span></div>
-        <div class="stat-row"><span class="stat-label">Ann. Vol (30d)</span><span class="stat-value">${{stat.annualized_vol_30d?.toFixed(2) ?? 'N/A'}}%</span></div>
         <div class="stat-row"><span class="stat-label">Mean Daily Ret</span><span class="stat-value">${{stat.mean_daily_return_pct.toFixed(4)}}%</span></div>
     `;
 }}
@@ -653,25 +721,25 @@ function renderSeasonality() {{
     
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const dVals = days.map(d => (s.day_of_week[d] || 0) * 100);
-    const dColors = dVals.map(v => v >= 0 ? "#4caf7d" : "#f06969");
-    drawPlot("seas-dow", [{{ type: 'bar', x: days.map(d => d.substr(0,3)), y: dVals, marker: {{color: dColors}} }}], plotLayout({{title: "Day of Week (%)", margin: {{t:30, r:10, b:30, l:40}}}}));
+    const dColors = dVals.map(v => v >= 0 ? "#10B981" : "#EF4444");
+    drawPlot("seas-dow", [{{ type: 'bar', x: days.map(d => d.substr(0,3)), y: dVals, marker: {{color: dColors}} }}], plotLayout({{title: "Day of Week (%)", margin: {{t:40, r:10, b:40, l:40}}}}));
     
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const mVals = months.map(m => (s.monthly[m] || 0) * 100);
-    const mColors = mVals.map(v => v >= 0 ? "#4caf7d" : "#f06969");
-    drawPlot("seas-mon", [{{ type: 'bar', x: months, y: mVals, marker: {{color: mColors}} }}], plotLayout({{title: "Monthly (%)", margin: {{t:30, r:10, b:30, l:40}}}}));
+    const mColors = mVals.map(v => v >= 0 ? "#10B981" : "#EF4444");
+    drawPlot("seas-mon", [{{ type: 'bar', x: months, y: mVals, marker: {{color: mColors}} }}], plotLayout({{title: "Monthly (%)", margin: {{t:40, r:10, b:40, l:40}}}}));
     
     if (d.meta.category === "agriculture" && d.commodity_specific && d.commodity_specific.quarterly_seasonality) {{
         const qs = d.commodity_specific.quarterly_seasonality;
         const qtrs = ["Q1", "Q2", "Q3", "Q4"];
         const qVals = qtrs.map(q => (qs[q] || 0) * 100);
-        const qColors = qVals.map(v => v >= 0 ? "#4caf7d" : "#f06969");
-        drawPlot("seas-qtr", [{{ type: 'bar', x: qtrs, y: qVals, marker: {{color: qColors}} }}], plotLayout({{title: "Quarterly (%)", margin: {{t:30, r:10, b:30, l:40}}}}));
+        const qColors = qVals.map(v => v >= 0 ? "#10B981" : "#EF4444");
+        drawPlot("seas-qtr", [{{ type: 'bar', x: qtrs, y: qVals, marker: {{color: qColors}} }}], plotLayout({{title: "Quarterly (%)", margin: {{t:40, r:10, b:40, l:40}}}}));
     }} else {{
-        document.getElementById("seas-qtr").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;text-align:center;padding:20px;color:var(--text2)'>Quarterly seasonality data available for agricultural commodities</div>";
+        document.getElementById("seas-qtr").innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;text-align:center;padding:20px;color:var(--text2);font-weight:600;'>Quarterly seasonality data only available for Agriculture</div>";
     }}
     
-    document.getElementById("seas-summary").textContent = `Historically best day: ${{s.best_day}} • Best month: ${{s.best_month}} | Historical averages, not guarantees`;
+    document.getElementById("seas-summary").textContent = `Historically Best Day: ${{s.best_day}} • Best Month: ${{s.best_month}} | (Historical averages do not guarantee future performance)`;
 }}
 
 function renderRankings() {{
@@ -684,7 +752,9 @@ function renderRankings() {{
         const d1w = COMQUANT_DATA.data[id]?.["1W"];
         if (d1w) {{
             const cs = d1w.commodity_specific;
-            infArr.push({{id: id, name: d1w.meta.name, val: cs.inflation_hedge_score}});
+            if (cs && cs.inflation_hedge_score !== undefined) {{
+                infArr.push({{id: id, name: d1w.meta.name, val: cs.inflation_hedge_score}});
+            }}
             
             const dx = COMQUANT_DATA.correlations?.dxy_proxy?.[id];
             if (dx !== undefined) {{
@@ -697,29 +767,29 @@ function renderRankings() {{
     const infTrace = {{
         type: 'bar', orientation: 'h', 
         x: infArr.map(x => x.val), y: infArr.map(x => x.name),
-        marker: {{color: infArr.map(x => x.id === "GOLD" ? "#ffd166" : "#4caf7d")}}
+        marker: {{color: infArr.map(x => x.id === "GOLD" ? "#F59E0B" : "#10B981")}}
     }};
-    drawPlot("inflation-chart", [infTrace], plotLayout({{margin: {{t:20, r:20, b:30, l:100}}, xaxis: {{range: [0, 1]}}}}));
+    drawPlot("inflation-chart", [infTrace], plotLayout({{margin: {{t:30, r:40, b:50, l:120}}, xaxis: {{range: [0, 1]}}}}));
     
     dxyArr.sort((a,b) => a.val - b.val);
     const dxyTrace = {{
         type: 'bar', orientation: 'h',
         x: dxyArr.map(x => x.val), y: dxyArr.map(x => x.name),
-        marker: {{color: dxyArr.map(x => x.val < 0 ? "#4caf7d" : "#f06969")}}
+        marker: {{color: dxyArr.map(x => x.val < 0 ? "#10B981" : "#EF4444")}}
     }};
-    drawPlot("dxy-rank-chart", [dxyTrace], plotLayout({{margin: {{t:20, r:20, b:30, l:100}}, xaxis: {{range: [-1, 1]}}}}));
+    drawPlot("dxy-rank-chart", [dxyTrace], plotLayout({{margin: {{t:30, r:40, b:50, l:120}}, xaxis: {{range: [-1, 1]}}}}));
 }}
 
 function renderCommoditySpecific() {{
     const sec = document.getElementById("comspec-section");
-    if (currentCommodity === "GOLD") {{
+    if (!currentCommodity || currentCommodity === "GOLD") {{
         sec.style.display = "none";
         return;
     }}
     sec.style.display = "block";
     
     const d = getData();
-    if (!d) return;
+    if (!d || !d.commodity_specific) return;
     
     document.getElementById("comspec-title").textContent = d.meta.name;
     const cs = d.commodity_specific;
@@ -730,33 +800,38 @@ function renderCommoditySpecific() {{
     else if (cs.contango_indicator.includes("Contango")) contColor = "var(--red)";
     
     const hl = d.forecast.half_life_days || d.commodity_specific.half_life_days;
-    const hlStr = hl ? `${{hl.toFixed(1)}} days to revert 50% of deviation` : "N/A";
+    const hlStr = hl ? `${{hl.toFixed(1)}} days to revert 50%` : "N/A";
     
     pnl.innerHTML = `
         <div class="stat-row"><span class="stat-label">Inflation Hedge Score</span><span class="stat-value">${{cs.inflation_hedge_score.toFixed(3)}}</span></div>
         <div class="stat-row"><span class="stat-label">DXY Correlation</span><span class="stat-value">${{cs.dxy_correlation_3m?.toFixed(3) ?? 'N/A'}}</span></div>
         <div class="stat-row"><span class="stat-label">Price vs 1Y Mean</span><span class="stat-value">${{cs.price_vs_1y_mean_pct.toFixed(2)}}% (${{cs.price_vs_1y_mean_zscore.toFixed(2)}} σ)</span></div>
-        <div class="stat-row"><span class="stat-label">Contango Indicator</span><span class="stat-value" style="color:${{contColor}}">${{cs.contango_indicator}}</span></div>
-        <div class="stat-row"><span class="stat-label">OU Half-Life</span><span class="stat-value">${{hlStr}}</span></div>
+        <div class="stat-row"><span class="stat-label">Term Structure Indicator</span><span class="stat-value" style="color:${{contColor}}">${{cs.contango_indicator}}</span></div>
+        <div class="stat-row"><span class="stat-label">Mean Reversion Half-Life</span><span class="stat-value">${{hlStr}}</span></div>
     `;
     
     const z = cs.price_vs_1y_mean_zscore;
+    const colors = getThemeColors();
     const zTrace = {{
-        type: 'indicator', mode: 'gauge+number', value: z, title: {{text: "Z-Score vs 1Y Mean"}},
+        type: 'indicator', mode: 'gauge+number', value: z, title: {{text: "Z-Score vs 1Y Mean", font: {{color: colors.text}}}},
         gauge: {{
-            axis: {{range: [-3, 3]}},
-            bar: {{color: z > 0 ? '#4caf7d' : '#f06969'}},
+            axis: {{range: [-3, 3], tickwidth: 1, tickcolor: colors.text2}},
+            bar: {{color: z > 0 ? '#10B981' : '#EF4444'}},
+            bgcolor: "rgba(255,255,255,0.05)",
+            borderwidth: 2, bordercolor: "transparent",
             steps: [
-                {{range: [-3, -1.5], color: 'rgba(240,105,105,0.2)'}},
-                {{range: [-1.5, 1.5], color: 'rgba(124,131,253,0.1)'}},
-                {{range: [1.5, 3], color: 'rgba(76,175,125,0.2)'}}
+                {{range: [-3, -1.5], color: 'rgba(239, 68, 68, 0.2)'}},
+                {{range: [-1.5, 1.5], color: 'rgba(99, 102, 241, 0.1)'}},
+                {{range: [1.5, 3], color: 'rgba(16, 185, 129, 0.2)'}}
             ]
-        }}
+        }},
+        number: {{font: {{color: colors.text}}}}
     }};
-    drawPlot("comspec-chart", [zTrace], plotLayout({{margin: {{t:40, b:20, l:30, r:30}}}}));
+    drawPlot("comspec-chart", [zTrace], plotLayout({{margin: {{t:60, b:30, l:40, r:40}}}}));
 }}
 
 function renderAll() {{
+    if (!currentCommodity) return;
     renderOverviewCards();
     renderForecastChart();
     renderOptimalEntry();
@@ -775,7 +850,7 @@ function renderAll() {{
 document.addEventListener("DOMContentLoaded", () => {{
     const ts = new Date(COMQUANT_DATA.generated_at);
     document.getElementById("updated-ts").textContent = "Updated: " + ts.toUTCString().replace(" GMT","") + " UTC";
-    renderAll();
+    setCategory(currentCategory); // Initializes currentCommodity and renders
 }});
 </script>
 </body>
