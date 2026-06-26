@@ -66,6 +66,9 @@ WINDOWS = {
     "1M": {"forecast_days": 30,  "lookback_days": 365, "display_days": 30},
     "3M": {"forecast_days": 90,  "lookback_days": 730, "display_days": 90},
     "6M": {"forecast_days": 180, "lookback_days": 730, "display_days": 180},
+    "1Y": {"forecast_days": 180, "lookback_days": 1825, "display_days": 365},
+    "5Y": {"forecast_days": 365, "lookback_days": 3650, "display_days": 1825},
+    "10Y":{"forecast_days": 365, "lookback_days": 3650, "display_days": 3650},
 }
 
 def json_safe(obj):
@@ -89,10 +92,10 @@ def json_safe(obj):
     else:
         return obj
 
-def download_data(ticker, lookback_days):
+def download_data(ticker, period="10y"):
     for attempt in range(3):
         try:
-            df = yf.download(ticker, period=f"{lookback_days}d", auto_adjust=True)
+            df = yf.download(ticker, period=period, auto_adjust=True)
             if df is None or df.empty:
                 time.sleep(2)
                 continue
@@ -826,7 +829,7 @@ def main():
 
     raw_data = {}
     for cid, info in COMMODITIES.items():
-        df = download_data(info["ticker"], 730)
+        df = download_data(info["ticker"], "10y")
         if df is not None and len(df) >= 60:
             raw_data[cid] = df
             print(f"  ✓ {cid}: {len(df)} rows")
@@ -837,7 +840,7 @@ def main():
         print("Failed to download any data. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    dxy_df = download_data(DXY_PROXY_TICKER, 730)
+    dxy_df = download_data(DXY_PROXY_TICKER, "10y")
     dxy_series = dxy_df["Close"] if dxy_df is not None else None
 
     all_close = {cid: raw_data[cid]["Close"] for cid in raw_data}

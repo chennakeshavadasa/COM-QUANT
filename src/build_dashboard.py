@@ -166,6 +166,9 @@ body {{
       <button class="tab"        onclick="setWindow('1M')">1M</button>
       <button class="tab"        onclick="setWindow('3M')">3M</button>
       <button class="tab"        onclick="setWindow('6M')">6M</button>
+      <button class="tab"        onclick="setWindow('1Y')">1Y</button>
+      <button class="tab"        onclick="setWindow('5Y')">5Y</button>
+      <button class="tab"        onclick="setWindow('10Y')">10Y</button>
     </div>
   </div>
 </header>
