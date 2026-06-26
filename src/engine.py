@@ -24,6 +24,8 @@ COMMODITIES = {
     "PALLADIUM": {"ticker": "PA=F", "name": "Palladium",     "unit": "USD/troy oz", "category": "precious_metals"},
     "COPPER":    {"ticker": "HG=F", "name": "Copper",        "unit": "USD/lb",      "category": "industrial_metals"},
     "ALUMINUM":  {"ticker": "ALI=F", "name": "Aluminum",     "unit": "USD/ton",     "category": "industrial_metals"},
+    "ZINC":      {"ticker": "ZNC=F", "name": "Zinc",          "unit": "USD/ton",     "category": "industrial_metals"},
+    "LEAD":      {"ticker": "LED=F", "name": "Lead",          "unit": "USD/ton",     "category": "industrial_metals"},
     "WTI":       {"ticker": "CL=F", "name": "WTI Crude Oil", "unit": "USD/barrel",  "category": "energy"},
     "BRENT":     {"ticker": "BZ=F", "name": "Brent Crude",   "unit": "USD/barrel",  "category": "energy"},
     "NATGAS":    {"ticker": "NG=F", "name": "Natural Gas",   "unit": "USD/MMBtu",   "category": "energy"},
@@ -36,16 +38,19 @@ COMMODITIES = {
     "SUGAR":     {"ticker": "SB=F", "name": "Sugar",         "unit": "USD/lb",      "category": "agriculture"},
     "COTTON":    {"ticker": "CT=F", "name": "Cotton",        "unit": "USD/lb",      "category": "agriculture"},
     "COCOA":     {"ticker": "CC=F", "name": "Cocoa",         "unit": "USD/ton",     "category": "agriculture"},
+    "OATS":      {"ticker": "OAT=F", "name": "Oats",          "unit": "USD/bushel",  "category": "agriculture"},
+    "ROUGHRICE": {"ticker": "ZR=F",  "name": "Rough Rice",    "unit": "USD/cwt",     "category": "agriculture"},
     "LIVECATTLE":{"ticker": "LE=F", "name": "Live Cattle",   "unit": "USD/lb",      "category": "livestock"},
     "LEANHOGS":  {"ticker": "HE=F", "name": "Lean Hogs",     "unit": "USD/lb",      "category": "livestock"},
+    "FEEDERCAT": {"ticker": "GF=F",  "name": "Feeder Cattle", "unit": "USD/lb",      "category": "livestock"},
 }
 
 CATEGORIES = {
     "precious_metals":   ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"],
-    "industrial_metals": ["COPPER", "ALUMINUM"],
+    "industrial_metals": ["COPPER", "ALUMINUM", "ZINC", "LEAD"],
     "energy":            ["WTI", "BRENT", "NATGAS", "GASOLINE", "HEATOIL"],
-    "agriculture":       ["WHEAT", "CORN", "SOYBEAN", "COFFEE", "SUGAR", "COTTON", "COCOA"],
-    "livestock":         ["LIVECATTLE", "LEANHOGS"],
+    "agriculture":       ["WHEAT", "CORN", "SOYBEAN", "COFFEE", "SUGAR", "COTTON", "COCOA", "OATS", "ROUGHRICE"],
+    "livestock":         ["LIVECATTLE", "LEANHOGS", "FEEDERCAT"],
 }
 
 DXY_PROXY_TICKER = "EURUSD=X"
@@ -289,7 +294,25 @@ def fit_svr(prices, forecast_days):
     except:
         return {"forecast": [None]*n}
 
-def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, svr_fc, weights):
+def fit_random_forest(prices, forecast_days):
+    n = forecast_days
+    try:
+        from sklearn.ensemble import RandomForestRegressor
+        X = np.arange(len(prices)).reshape(-1, 1)
+        y = np.array(prices)
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X, y)
+        X_pred = np.arange(len(prices), len(prices) + n).reshape(-1, 1)
+        forecast = model.predict(X_pred)
+        # Smooth the RF forecast slightly so it's not totally flat
+        smoothed = pd.Series(forecast).ewm(span=5).mean().values
+        return {"forecast": smoothed.tolist()}
+    except:
+        return {"forecast": [None]*n}
+
+MODEL_WEIGHTS = {"arima": 0.20, "holt_winters": 0.20, "monte_carlo": 0.20, "ou_process": 0.15, "svr": 0.15, "rf": 0.10}
+
+def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, svr_fc, rf_fc, weights):
     n = len(arima_fc)
     ensemble = []
     for i in range(n):
@@ -310,6 +333,9 @@ def compute_ensemble(arima_fc, hw_fc, mc_p50, ou_fc, svr_fc, weights):
         if svr_fc and svr_fc[i] is not None:
             vals.append(svr_fc[i])
             wts.append(weights.get("svr", 0.0))
+        if rf_fc and rf_fc[i] is not None:
+            vals.append(rf_fc[i])
+            wts.append(weights.get("rf", 0.0))
         
         if sum(wts) > 0:
             ensemble.append(float(np.average(vals, weights=wts)))
@@ -726,14 +752,20 @@ def compute_correlations(all_close_dict, dxy_series):
             r1 = np.diff(np.log(df_64[cid1].values))
             for cid2 in cids:
                 r2 = np.diff(np.log(df_64[cid2].values))
-                correlations[cid1][cid2] = float(scipy.stats.pearsonr(r1, r2)[0])
+                if np.std(r1) == 0 or np.std(r2) == 0:
+                    correlations[cid1][cid2] = 0.0
+                else:
+                    correlations[cid1][cid2] = float(scipy.stats.pearsonr(r1, r2)[0])
                 
         correlations["dxy_proxy"] = {}
         if "DXY_PROXY" in df_all.columns:
             dxy_r = -np.diff(np.log(df_64["DXY_PROXY"].values))
             for cid in cids:
                 r = np.diff(np.log(df_64[cid].values))
-                correlations["dxy_proxy"][cid] = float(scipy.stats.pearsonr(r, dxy_r)[0])
+                if np.std(r) == 0 or np.std(dxy_r) == 0:
+                    correlations["dxy_proxy"][cid] = 0.0
+                else:
+                    correlations["dxy_proxy"][cid] = float(scipy.stats.pearsonr(r, dxy_r)[0])
     
     return correlations
 
@@ -846,7 +878,8 @@ def main():
             mc_r     = fit_monte_carlo(close, n)
             ou_r     = fit_ou_process(close, n, is_natgas=(cid=="NATGAS"))
             svr_r    = fit_svr(close, n)
-            ensemble = compute_ensemble(arima_r["forecast"], hw_r["forecast"], mc_r["p50"], ou_r["forecast"], svr_r["forecast"], MODEL_WEIGHTS)
+            rf_r     = fit_random_forest(close, n)
+            ensemble = compute_ensemble(arima_r["forecast"], hw_r["forecast"], mc_r["p50"], ou_r["forecast"], svr_r["forecast"], rf_r["forecast"], MODEL_WEIGHTS)
             optimal  = find_optimal_entry(ensemble, forecast_dates, current_price)
 
             indicators  = compute_technical_indicators(close, high, low)
@@ -888,6 +921,7 @@ def main():
                     "monte_carlo_p95":  mc_r["p95"],
                     "ou_process":       ou_r["forecast"],
                     "svr":              svr_r["forecast"],
+                    "rf":               rf_r["forecast"],
                     "ensemble":         ensemble,
                     "arima_ci_lower":   arima_r["ci_lower"],
                     "arima_ci_upper":   arima_r["ci_upper"],
