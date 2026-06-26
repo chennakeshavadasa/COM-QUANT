@@ -69,25 +69,25 @@ body {{
 .section {{ padding: 32px 0; border-bottom: 1px solid var(--border); }}
 .section-title {{ font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); margin-bottom: 20px; }}
 
-.card { 
+.card {{ 
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); 
   padding: 20px; box-shadow: var(--shadow); var(--blur);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4); }
+}}
+.card:hover {{ transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4); }}
 
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeUp {{
+  0% {{ opacity: 0; transform: translateY(20px); }}
+  100% {{ opacity: 1; transform: translateY(0); }}
+}}
 
-.card:nth-child(1) { animation-delay: 0.05s; }
-.card:nth-child(2) { animation-delay: 0.1s; }
-.card:nth-child(3) { animation-delay: 0.15s; }
-.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(1) {{ animation-delay: 0.05s; }}
+.card:nth-child(2) {{ animation-delay: 0.1s; }}
+.card:nth-child(3) {{ animation-delay: 0.15s; }}
+.card:nth-child(4) {{ animation-delay: 0.2s; }}
 
-.badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }}
+.badge {{ display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }}
 .badge-bull  {{ background: rgba(16, 185, 129, 0.15); color: var(--green); }}
 .badge-bear  {{ background: rgba(239, 68, 68, 0.15); color: var(--red); }}
 .badge-neut  {{ background: rgba(99, 102, 241, 0.15); color: var(--accent); }}
@@ -488,19 +488,19 @@ function renderForecastChart() {{
         }});
     }}
     
-    if (sFcDates.length > 0) {
-        traces.push({
+    if (sFcDates.length > 0) {{
+        traces.push({{
             x: sFcDates, y: svr, mode: 'lines', name: 'SVR (15%)', 
-            line: {color: '#EC4899', dash: 'dash', width: 1.5}
-        });
-    }
+            line: {{color: '#EC4899', dash: 'dash', width: 1.5}}
+        }});
+    }}
     
-    if (rFcDates.length > 0) {
-        traces.push({
+    if (rFcDates.length > 0) {{
+        traces.push({{
             x: rFcDates, y: rf, mode: 'lines', name: 'Random Forest (10%)', 
-            line: {color: '#8B5CF6', dash: 'dash', width: 1.5}
-        });
-    }
+            line: {{color: '#8B5CF6', dash: 'dash', width: 1.5}}
+        }});
+    }}
     
     if (eFcDates.length > 0) {{
         traces.push({{
