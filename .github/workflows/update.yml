@@ -29,10 +29,10 @@ jobs:
         run: touch .nojekyll
 
       - name: Run engine.py (data download + model computation)
-        run: python engine.py
+        run: python src/engine.py
 
       - name: Run build_dashboard.py (bake JSON into HTML)
-        run: python build_dashboard.py
+        run: python src/build_dashboard.py
 
       - name: Commit and push updated files
         run: |
