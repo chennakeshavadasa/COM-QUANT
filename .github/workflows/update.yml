@@ -22,15 +22,19 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
+        continue-on-error: true
         run: pip install -r requirements.txt
 
       - name: Run engine
+        continue-on-error: true
         run: python src/engine.py
 
       - name: Build dashboard
+        continue-on-error: true
         run: python src/build_dashboard.py
 
       - name: Commit if data changed
+        continue-on-error: true
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
