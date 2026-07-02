@@ -4,17 +4,15 @@ import sys
 
 
 def main():
-    if not os.path.exists("multi_data.json"):
-        print("multi_data.json not found — run engine.py first.", file=sys.stderr)
-        sys.exit(1)
+    html = generate_html()
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    size_kb = os.path.getsize("index.html") / 1024
+    print(f"Built index.html ({size_kb:.1f} KB)")
 
-    with open("multi_data.json", "r", encoding="utf-8") as f:
-        jsdata = json.load(f)
 
-    generated_at = jsdata["_meta"]["generated_at"]
-
-    html = f"""<!DOCTYPE html>
-<html lang="en">
+def generate_html():
+    return """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -484,8 +482,8 @@ function initDashboard(jsdata) {{
   }});
 }}
 
-// Fetch data at runtime — keeps index.html tiny
-fetch('multi_data.json')
+// Fetch data at runtime from main branch — keeps gh-pages deployment tiny
+fetch('https://raw.githubusercontent.com/chennakeshavadasa/COM-QUANT/main/multi_data.json')
   .then(r => r.json())
   .then(initDashboard)
   .catch(err => {{
@@ -496,12 +494,6 @@ fetch('multi_data.json')
 </body>
 </html>
 """
-
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html)
-
-    size_kb = os.path.getsize("index.html") / 1024
-    print(f"Built index.html ({size_kb:.1f} KB)")
 
 
 if __name__ == "__main__":
